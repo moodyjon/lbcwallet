@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/btcsuite/btcutil"
+	btcutil "github.com/lbryio/lbcutil"
 )
 
 // AmountFlag embeds a btcutil.Amount and implements the flags.Marshaler and
@@ -29,7 +29,7 @@ func (a *AmountFlag) MarshalFlag() (string, error) {
 
 // UnmarshalFlag satisfies the flags.Unmarshaler interface.
 func (a *AmountFlag) UnmarshalFlag(value string) error {
-	value = strings.TrimSuffix(value, " BTC")
+	value = strings.TrimSuffix(value, " LBC")
 	valueF64, err := strconv.ParseFloat(value, 64)
 	if err != nil {
 		return err

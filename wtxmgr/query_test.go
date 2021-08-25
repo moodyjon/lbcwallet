@@ -12,10 +12,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/btcsuite/btcd/wire"
-	"github.com/btcsuite/btcutil"
-	"github.com/btcsuite/btcwallet/walletdb"
+	"github.com/lbryio/lbcd/chaincfg/chainhash"
+	"github.com/lbryio/lbcd/wire"
+	btcutil "github.com/lbryio/lbcutil"
+	"github.com/lbryio/lbcwallet/walletdb"
 )
 
 type queryState struct {
@@ -310,7 +310,7 @@ func TestStoreQueries(t *testing.T) {
 	})
 
 	// Insert another unmined transaction which spends txA:0, splitting the
-	// amount into outputs of 40 and 60 BTC.
+	// amount into outputs of 40 and 60 LBC.
 	txB := spendOutput(&recA.Hash, 0, 40e8, 60e8)
 	recB, err := NewTxRecordFromMsgTx(txB, timeNow())
 	if err != nil {
