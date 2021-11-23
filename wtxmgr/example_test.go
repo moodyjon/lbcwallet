@@ -232,7 +232,7 @@ func Example_basicUsage() {
 	}
 
 	// Print the one confirmation balance.
-	bal, err := s.Balance(b, 1, 100)
+	bal, _, err := s.Balance(b, 1, 100)
 	if err != nil {
 		fmt.Println(err)
 		return
