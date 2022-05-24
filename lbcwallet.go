@@ -16,6 +16,8 @@ import (
 	"github.com/lbryio/lbcwallet/chain"
 	"github.com/lbryio/lbcwallet/rpc/legacyrpc"
 	"github.com/lbryio/lbcwallet/wallet"
+
+	"github.com/lbryio/lbcd/version"
 )
 
 var (
@@ -52,7 +54,7 @@ func walletMain() error {
 	}()
 
 	// Show version at startup.
-	log.Infof("Version %s", version())
+	log.Infof("Version %s", version.Full())
 
 	if cfg.Profile != "" {
 		go func() {

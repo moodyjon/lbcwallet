@@ -18,6 +18,7 @@ import (
 
 	flags "github.com/jessevdk/go-flags"
 	"github.com/lbryio/lbcd/chaincfg"
+	"github.com/lbryio/lbcd/version"
 	btcutil "github.com/lbryio/lbcutil"
 	"github.com/lbryio/lbcwallet/internal/cfgutil"
 	"github.com/lbryio/lbcwallet/internal/legacy/keystore"
@@ -296,7 +297,7 @@ func loadConfig() (*config, []string, error) {
 	appName = strings.TrimSuffix(appName, filepath.Ext(appName))
 	usageMessage := fmt.Sprintf("Use %s -h to show usage", appName)
 	if preCfg.ShowVersion {
-		fmt.Println(appName, "version", version())
+		fmt.Println(appName, "version", version.Full())
 		os.Exit(0)
 	}
 
