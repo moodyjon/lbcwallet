@@ -649,7 +649,7 @@ func getInfo(icmd interface{}, w *wallet.Wallet, chainClient *chain.RPCClient) (
 	info.WalletVersion = int32(waddrmgr.LatestMgrVersion)
 	info.Balance = bal.ToBTC()
 	info.Staked = staked.ToBTC()
-	info.PaytxFee = float64(txrules.DefaultRelayFeePerKb)
+	info.PaytxFee = 0
 	// We don't set the following since they don't make much sense in the
 	// wallet architecture:
 	//  - unlocked_until
