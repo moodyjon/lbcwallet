@@ -2129,10 +2129,11 @@ func deriveTestAccountKey(t *testing.T) *hdkeychain.ExtendedKey {
 // TestManagerIncorrectVersion ensures that that the manager cannot be accessed
 // if its version does not match the latest version.
 func TestManagerHigherVersion(t *testing.T) {
-	t.Parallel()
 
 	teardown, db, _ := setupManager(t)
 	defer teardown()
+
+	t.Parallel()
 
 	// We'll update our manager's version to be one higher than the latest.
 	latestVersion := getLatestVersion()
@@ -2186,10 +2187,11 @@ func TestManagerHigherVersion(t *testing.T) {
 // TestEncryptDecryptErrors ensures that errors which occur while encrypting and
 // decrypting data return the expected errors.
 func TestEncryptDecryptErrors(t *testing.T) {
-	t.Parallel()
 
 	teardown, db, mgr := setupManager(t)
 	defer teardown()
+
+	t.Parallel()
 
 	invalidKeyType := CryptoKeyType(0xff)
 	if _, err := mgr.Encrypt(invalidKeyType, []byte{}); err == nil {
@@ -2239,10 +2241,11 @@ func TestEncryptDecryptErrors(t *testing.T) {
 // TestEncryptDecrypt ensures that encrypting and decrypting data with the
 // the various crypto key types works as expected.
 func TestEncryptDecrypt(t *testing.T) {
-	t.Parallel()
 
 	teardown, db, mgr := setupManager(t)
 	defer teardown()
+
+	t.Parallel()
 
 	plainText := []byte("this is a plaintext")
 
@@ -2282,10 +2285,11 @@ func TestEncryptDecrypt(t *testing.T) {
 // create, retrieve, and utilize new scoped managers outside the set of default
 // created scopes.
 func TestScopedKeyManagerManagement(t *testing.T) {
-	t.Parallel()
 
 	teardown, db := emptyDB(t)
 	defer teardown()
+
+	t.Parallel()
 
 	// We'll start the test by creating a new root manager that will be
 	// used for the duration of the test.
@@ -2531,10 +2535,11 @@ func TestScopedKeyManagerManagement(t *testing.T) {
 // TestRootHDKeyNeutering tests that callers are unable to create new scoped
 // managers once the root HD key has been deleted from the database.
 func TestRootHDKeyNeutering(t *testing.T) {
-	t.Parallel()
 
 	teardown, db := emptyDB(t)
 	defer teardown()
+
+	t.Parallel()
 
 	// We'll start the test by creating a new root manager that will be
 	// used for the duration of the test.
@@ -2623,10 +2628,11 @@ func TestRootHDKeyNeutering(t *testing.T) {
 // raw accounts created with only an account number, and not a string which is
 // eventually mapped to an account number.
 func TestNewRawAccount(t *testing.T) {
-	t.Parallel()
 
 	teardown, db := emptyDB(t)
 	defer teardown()
+
+	t.Parallel()
 
 	// We'll start the test by creating a new root manager that will be
 	// used for the duration of the test.
@@ -2682,10 +2688,11 @@ func TestNewRawAccount(t *testing.T) {
 // only an account number, and not a string which is eventually mapped
 // to an account number.
 func TestNewRawAccountWatchingOnly(t *testing.T) {
-	t.Parallel()
 
 	teardown, db := emptyDB(t)
 	defer teardown()
+
+	t.Parallel()
 
 	// We'll start the test by creating a new root manager that will be
 	// used for the duration of the test.
@@ -2749,10 +2756,11 @@ func TestNewRawAccountWatchingOnly(t *testing.T) {
 // shows that watch-only accounts can be added to managers with
 // non-watch-only accounts.
 func TestNewRawAccountHybrid(t *testing.T) {
-	t.Parallel()
 
 	teardown, db := emptyDB(t)
 	defer teardown()
+
+	t.Parallel()
 
 	// We'll start the test by creating a new root manager that will be
 	// used for the duration of the test.
@@ -2869,10 +2877,11 @@ func testNewRawAccount(t *testing.T, _ *Manager, db walletdb.DB,
 // properly cache items in the cache, and return corresponding errors if the
 // account isn't properly cached.
 func TestDeriveFromKeyPathCache(t *testing.T) {
-	t.Parallel()
 
 	teardown, db := emptyDB(t)
 	defer teardown()
+
+	t.Parallel()
 
 	// We'll start the test by creating a new root manager that will be
 	// used for the duration of the test.

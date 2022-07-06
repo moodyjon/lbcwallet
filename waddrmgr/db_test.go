@@ -12,10 +12,10 @@ import (
 // TestStoreMaxReorgDepth ensures that we can only store up to MaxReorgDepth
 // blocks at any given time.
 func TestStoreMaxReorgDepth(t *testing.T) {
-	t.Parallel()
-
 	teardown, db, _ := setupManager(t)
 	defer teardown()
+
+	t.Parallel()
 
 	// We'll start the test by simulating a synced chain where we start from
 	// 1000 and end at 109999.
