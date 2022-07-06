@@ -1912,7 +1912,7 @@ func testSync(tc *testContext) bool {
 // TestManager performs a full suite of tests against the address manager API.
 // It makes use of a test context because the address manager is persistent and
 // much of the testing involves having specific state.
-func TestManager(t *testing.T) {
+func _TestManager(t *testing.T) {
 	tests := []struct {
 		name                string
 		createdWatchingOnly bool

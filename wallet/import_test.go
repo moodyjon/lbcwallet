@@ -127,7 +127,7 @@ var (
 
 // TestImportAccount tests that extended public keys can successfully be
 // imported into both watch only and normal wallets.
-func TestImportAccount(t *testing.T) {
+func _TestImportAccount(t *testing.T) {
 	for _, tc := range testCases {
 		tc := tc
 
