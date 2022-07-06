@@ -30,6 +30,7 @@ var Methods = []struct {
 	{"getaccount", returnsString},
 	{"getaccountaddress", returnsString},
 	{"getaddressesbyaccount", returnsStringArray},
+	{"getaddressinfo", []interface{}{(*btcjson.GetAddressInfoResult)(nil)}},
 	{"getbalance", append(returnsNumber, returnsNumber[0])},
 	{"getbestblockhash", returnsString},
 	{"getblockcount", returnsNumber},
