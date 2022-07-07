@@ -7,7 +7,7 @@ require (
 	github.com/golang/protobuf v1.5.2
 	github.com/jessevdk/go-flags v1.5.0
 	github.com/jrick/logrotate v1.0.0
-	github.com/lbryio/lbcd v0.22.101
+	github.com/lbryio/lbcd v0.22.102
 	github.com/lbryio/lbcutil v1.0.202-rc3
 	github.com/lightningnetwork/lnd/clock v1.1.0
 	github.com/stretchr/testify v1.7.1
