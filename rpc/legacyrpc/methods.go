@@ -122,8 +122,6 @@ var rpcHandlers = map[string]struct {
 	// Reference methods which can't be implemented by lbcwallet due to
 	// design decision differences
 	"encryptwallet": {handler: unsupported, noHelp: true},
-	"move":          {handler: unsupported, noHelp: true},
-	"setaccount":    {handler: unsupported, noHelp: true},
 
 	// Extensions to the reference client JSON-RPC API
 	"createnewaccount": {handler: createNewAccount},
