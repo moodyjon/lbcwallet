@@ -277,7 +277,7 @@ var helpDescsEnUS = map[string]string{
 
 	// ListTransactionsCmd help.
 	"listtransactions--synopsis":        "Returns a JSON array of objects containing verbose details for wallet transactions.",
-	"listtransactions-account":          "DEPRECATED -- Unused (must be unset or \"*\")",
+	"listtransactions-account":          "DEPRECATED -- Unused (must be unset, \"default\" or \"*\")",
 	"listtransactions-count":            "Maximum number of transactions to create results from",
 	"listtransactions-from":             "Number of transactions to skip before results are created",
 	"listtransactions-includewatchonly": "Unused",

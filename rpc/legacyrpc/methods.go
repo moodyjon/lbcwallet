@@ -1408,7 +1408,7 @@ func listTransactions(icmd interface{}, w *wallet.Wallet) (interface{}, error) {
 	// between transactions pertaining to one account from another.  This
 	// will be resolved when wtxmgr is combined with the waddrmgr namespace.
 
-	if cmd.Account != nil && *cmd.Account != "*" {
+	if cmd.Account != nil && *cmd.Account != "*" && *cmd.Account != "default" {
 		// For now, don't bother trying to continue if the user
 		// specified an account, since this can't be (easily or
 		// efficiently) calculated.
