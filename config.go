@@ -70,7 +70,7 @@ type config struct {
 	// RPC client options
 	RPCConnect       string                  `short:"c" long:"rpcconnect" description:"Hostname/IP and port of lbcd RPC server to connect to (default localhost:9245, testnet: localhost:19245, regtest: localhost:29245 simnet: localhost:39245)"`
 	CAFile           *cfgutil.ExplicitString `long:"cafile" description:"File containing root certificates to authenticate a TLS connections with lbcd"`
-	DisableClientTLS bool                    `long:"noclienttls" description:"Disable TLS for the RPC client -- NOTE: This is only allowed if the RPC client is connecting to localhost"`
+	DisableClientTLS bool                    `long:"noclienttls" description:"Disable TLS for the RPC client"`
 	SkipVerify       bool                    `long:"skipverify" description:"Skip verifying TLS for the RPC client"`
 	LbcdUsername     string                  `long:"lbcdusername" description:"Username for lbcd authentication"`
 	LbcdPassword     string                  `long:"lbcdpassword" default-mask:"-" description:"Password for lbcd authentication"`
@@ -97,7 +97,7 @@ type config struct {
 	RPCCert                *cfgutil.ExplicitString `long:"rpccert" description:"File containing the certificate file"`
 	RPCKey                 *cfgutil.ExplicitString `long:"rpckey" description:"File containing the certificate key"`
 	OneTimeTLSKey          bool                    `long:"onetimetlskey" description:"Generate a new TLS certpair at startup, but only write the certificate to disk"`
-	DisableServerTLS       bool                    `long:"noservertls" description:"Disable TLS for the RPC server -- NOTE: This is only allowed if the RPC server is bound to localhost"`
+	DisableServerTLS       bool                    `long:"noservertls" description:"Disable TLS for the RPC server"`
 	LegacyRPCListeners     []string                `long:"rpclisten" description:"Listen for legacy RPC connections on this interface/port (default port: 9244, testnet: 19244, regtest: 29244, simnet: 29244)"`
 	LegacyRPCMaxClients    int64                   `long:"rpcmaxclients" description:"Max number of legacy RPC clients for standard connections"`
 	LegacyRPCMaxWebsockets int64                   `long:"rpcmaxwebsockets" description:"Max number of legacy RPC websocket connections"`
@@ -648,8 +648,6 @@ func loadConfig() (*config, []string, error) {
 		}
 	}
 
-	// Only allow server TLS to be disabled if the RPC server is bound to
-	// localhost addresses.
 	if cfg.DisableServerTLS {
 		allListeners := append(cfg.LegacyRPCListeners,
 			cfg.ExperimentalRPCListeners...)
