@@ -206,6 +206,13 @@ var (
 	ImportedDerivationPath = DerivationPath{
 		InternalAccount: ImportedAddrAccount,
 	}
+
+	// ImportedWatchonlyDerivationPath is the derivation path for an
+	// imported address. The Account, Branch, and Index members are not
+	// known, so they are left blank.
+	ImportedWatchonlyDerivationPath = DerivationPath{
+		InternalAccount: ImportedWatchonlyAddrAccount,
+	}
 )
 
 // ScopedKeyManager is a sub key manager under the main root key manager. The
@@ -529,17 +536,47 @@ func (s *ScopedKeyManager) AccountProperties(ns walletdb.ReadBucket,
 	}
 
 	// Until keys can be imported into any account, special handling is
-	// required for the imported account.
+	// required for the imported accounts.
 	//
 	// loadAccountInfo errors when using it on the imported account since
 	// the accountInfo struct is filled with a BIP0044 account's extended
 	// keys, and the imported accounts has none.
 	//
-	// Since only the imported account allows imports currently, the number
+	// Since only the imported accounts allow imports currently, the number
 	// of imported keys for any other account is zero, and since the
 	// imported account cannot contain non-imported keys, the external and
 	// internal key counts for it are zero.
-	if account != ImportedAddrAccount {
+	if account == ImportedAddrAccount {
+		props.AccountName = ImportedAddrAccountName // reserved, nonchangable
+		props.IsWatchOnly = false
+
+		// Could be more efficient if this was tracked by the db.
+		var importedKeyCount uint32
+		count := func(interface{}) error {
+			importedKeyCount++
+			return nil
+		}
+		err := forEachAccountAddress(ns, &s.scope, ImportedAddrAccount, count)
+		if err != nil {
+			return nil, err
+		}
+		props.ImportedKeyCount = importedKeyCount
+	} else if account == ImportedWatchonlyAddrAccount {
+		props.AccountName = ImportedWatchonlyAddrAccountName // reserved, nonchangable
+		props.IsWatchOnly = true
+
+		// Could be more efficient if this was tracked by the db.
+		var importedKeyCount uint32
+		count := func(interface{}) error {
+			importedKeyCount++
+			return nil
+		}
+		err := forEachAccountAddress(ns, &s.scope, ImportedWatchonlyAddrAccount, count)
+		if err != nil {
+			return nil, err
+		}
+		props.ImportedKeyCount = importedKeyCount
+	} else {
 		acctInfo, err := s.loadAccountInfo(ns, account)
 		if err != nil {
 			return nil, err
@@ -575,21 +612,6 @@ func (s *ScopedKeyManager) AccountProperties(ns walletdb.ReadBucket,
 					"account public key: %v", err)
 			}
 		}
-	} else {
-		props.AccountName = ImportedAddrAccountName // reserved, nonchangable
-		props.IsWatchOnly = s.rootManager.WatchOnly()
-
-		// Could be more efficient if this was tracked by the db.
-		var importedKeyCount uint32
-		count := func(interface{}) error {
-			importedKeyCount++
-			return nil
-		}
-		err := forEachAccountAddress(ns, &s.scope, ImportedAddrAccount, count)
-		if err != nil {
-			return nil, err
-		}
-		props.ImportedKeyCount = importedKeyCount
 	}
 
 	return props, nil

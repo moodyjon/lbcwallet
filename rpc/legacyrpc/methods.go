@@ -920,6 +920,9 @@ func getReceivedByAccount(icmd interface{}, w *wallet.Wallet) (interface{}, erro
 		return nil, err
 	}
 	acctIndex := int(account)
+	if account == waddrmgr.ImportedWatchonlyAddrAccount {
+		acctIndex = len(results) - 2
+	}
 	if account == waddrmgr.ImportedAddrAccount {
 		acctIndex = len(results) - 1
 	}
@@ -1692,7 +1695,7 @@ func sendToAddress(icmd interface{}, w *wallet.Wallet) (interface{}, error) {
 	}
 
 	// sendtoaddress always spends from the default account, this matches bitcoind
-	return sendPairs(w, pairs, waddrmgr.KeyScopeBIP0044, waddrmgr.DefaultAccountNum, 1,
+	return sendPairs(w, pairs, waddrmgr.KeyScopeBIP0084, waddrmgr.DefaultAccountNum, 1,
 		txrules.DefaultRelayFeePerKb)
 }
 

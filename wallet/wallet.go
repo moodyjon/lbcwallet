@@ -2457,8 +2457,8 @@ func (w *Wallet) AccountBalances(scope waddrmgr.KeyScope,
 			results[i].AccountNumber = uint32(i)
 			results[i].AccountName = accountName
 		}
+		results[len(results)-2].AccountName = waddrmgr.ImportedAddrAccountName
 		results[len(results)-1].AccountNumber = waddrmgr.ImportedAddrAccount
-		results[len(results)-1].AccountName = waddrmgr.ImportedAddrAccountName
 
 		// Fetch all unspent outputs, and iterate over them tallying each
 		// account's balance where the output script pays to an account address
@@ -2488,6 +2488,8 @@ func (w *Wallet) AccountBalances(scope waddrmgr.KeyScope,
 				continue
 			}
 			switch {
+			case outputAcct == waddrmgr.ImportedWatchonlyAddrAccount:
+				results[len(results)-2].AccountBalance += output.Amount
 			case outputAcct == waddrmgr.ImportedAddrAccount:
 				results[len(results)-1].AccountBalance += output.Amount
 			case outputAcct > lastAcct:
@@ -3080,6 +3082,9 @@ func (w *Wallet) TotalReceivedForAccounts(scope waddrmgr.KeyScope,
 					}
 					if err == nil {
 						acctIndex := int(outputAcct)
+						if outputAcct == waddrmgr.ImportedWatchonlyAddrAccount {
+							acctIndex = len(results) - 2
+						}
 						if outputAcct == waddrmgr.ImportedAddrAccount {
 							acctIndex = len(results) - 1
 						}

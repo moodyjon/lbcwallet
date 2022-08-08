@@ -102,7 +102,8 @@ func isReservedAccountName(name string) bool {
 // isReservedAccountNum returns true if the account number is reserved.
 // Reserved accounts may not be renamed.
 func isReservedAccountNum(acct uint32) bool {
-	return acct == ImportedAddrAccount
+	return acct == ImportedAddrAccount ||
+		acct == ImportedWatchonlyAddrAccount
 }
 
 // ScryptOptions is used to hold the scrypt parameters needed when deriving new
@@ -428,6 +429,7 @@ func (m *Manager) IsWatchOnlyAccount(ns walletdb.ReadBucket, keyScope KeyScope,
 	if account == ImportedAddrAccount {
 		return false, nil
 	}
+
 	if account == ImportedWatchonlyAddrAccount {
 		return true, nil
 	}
@@ -1785,10 +1787,23 @@ func createManagerKeyScope(ns walletdb.ReadWriteBucket,
 		return err
 	}
 
-	return putDefaultAccountInfo(
+	err = putDefaultAccountInfo(
 		ns, &scope, ImportedAddrAccount, nil, nil, 0, 0,
 		ImportedAddrAccountName,
 	)
+	if err != nil {
+		return err
+	}
+
+	err = putDefaultAccountInfo(
+		ns, &scope, ImportedWatchonlyAddrAccount, nil, nil, 0, 0,
+		ImportedWatchonlyAddrAccountName,
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Create creates a new address manager in the given namespace.
