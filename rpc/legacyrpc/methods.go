@@ -723,16 +723,27 @@ func getAccount(icmd interface{}, w *wallet.Wallet) (interface{}, error) {
 func getAccountAddress(icmd interface{}, w *wallet.Wallet) (interface{}, error) {
 	cmd := icmd.(*btcjson.GetAccountAddressCmd)
 
-	account, err := w.AccountNumber(waddrmgr.KeyScopeBIP0044, cmd.Account)
-	if err != nil {
-		return nil, err
+	var err error
+
+	scope := &waddrmgr.DefaultKeyScope
+	if cmd.AddressType != nil {
+		scope, err = lookupKeyScope(cmd.AddressType)
+		if err != nil {
+			return nil, err
+		}
 	}
-	addr, err := w.CurrentAddress(account, waddrmgr.KeyScopeBIP0044)
+
+	account, err := w.AccountNumber(*scope, cmd.Account)
 	if err != nil {
 		return nil, err
 	}
 
-	return addr.EncodeAddress(), err
+	addr, err := w.CurrentAddress(account, *scope)
+	if err != nil {
+		return nil, err
+	}
+
+	return addr.EncodeAddress(), nil
 }
 
 // getUnconfirmedBalance handles a getunconfirmedbalance extension request

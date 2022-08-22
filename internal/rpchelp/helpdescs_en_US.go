@@ -35,10 +35,11 @@ var helpDescsEnUS = map[string]string{
 	"getaccount--result0":  "The name of the account that 'address' belongs to",
 
 	// GetAccountAddressCmd help.
-	"getaccountaddress--synopsis": "DEPRECATED -- Returns the most recent external payment address for an account that has not been seen publicly.\n" +
+	"getaccountaddress--synopsis": "Returns the most recent external payment address for an account that has not been seen publicly.\n" +
 		"A new address is generated for the account if the most recently generated address has been seen on the blockchain or in mempool.",
-	"getaccountaddress-account":  "The account of the returned address",
-	"getaccountaddress--result0": "The unused address for 'account'",
+	"getaccountaddress-account":     "The account of the returned address",
+	"getaccountaddress-addresstype": "Address type. Must be one of legacy / p2pkh, p2sh-p2wpkh / p2sh-p2wkh / p2sh-segwit, or p2wpkh / p2wkh / bech32",
+	"getaccountaddress--result0":    "The unused address for 'account'",
 
 	// GetAddressesByAccountCmd help.
 	"getaddressesbyaccount--synopsis":   "Returns all addresses strings controlled by a single account.",
