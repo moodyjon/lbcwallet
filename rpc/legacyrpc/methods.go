@@ -707,7 +707,7 @@ func getAccount(icmd interface{}, w *wallet.Wallet) (interface{}, error) {
 		return nil, &ErrAddressNotInWallet
 	}
 
-	acctName, err := w.AccountName(waddrmgr.KeyScopeBIP0044, account)
+	acctName, err := w.AccountName(waddrmgr.DefaultKeyScope, account)
 	if err != nil {
 		return nil, &ErrAccountNameNotFound
 	}
