@@ -603,7 +603,7 @@ func getBalance(icmd interface{}, w *wallet.Wallet) (interface{}, error) {
 		}
 	} else {
 		var account uint32
-		account, err = w.AccountNumber(waddrmgr.KeyScopeBIP0044, accountName)
+		account, err = w.AccountNumber(waddrmgr.DefaultKeyScope, accountName)
 		if err != nil {
 			return nil, err
 		}
