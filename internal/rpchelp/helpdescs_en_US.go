@@ -41,9 +41,10 @@ var helpDescsEnUS = map[string]string{
 	"getaccountaddress--result0": "The unused address for 'account'",
 
 	// GetAddressesByAccountCmd help.
-	"getaddressesbyaccount--synopsis": "DEPRECATED -- Returns all addresses strings controlled by a single account.",
-	"getaddressesbyaccount-account":   "Account name to fetch addresses for",
-	"getaddressesbyaccount--result0":  "All addresses controlled by 'account'",
+	"getaddressesbyaccount--synopsis":   "Returns all addresses strings controlled by a single account.",
+	"getaddressesbyaccount-account":     "Account name to fetch addresses for",
+	"getaddressesbyaccount-addresstype": "Address type. Must be one of legacy / p2pkh, p2sh-p2wpkh / p2sh-p2wkh / p2sh-segwit, or p2wpkh / p2wkh / bech32",
+	"getaddressesbyaccount--result0":    "All addresses controlled by 'account'",
 
 	// GetBalanceCmd help.
 	"getbalance--synopsis":   "Calculates and returns the balance of one or all accounts.",
