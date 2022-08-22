@@ -755,7 +755,7 @@ func getUnconfirmedBalance(icmd interface{}, w *wallet.Wallet) (interface{}, err
 	if cmd.Account != nil {
 		acctName = *cmd.Account
 	}
-	account, err := w.AccountNumber(waddrmgr.KeyScopeBIP0044, acctName)
+	account, err := w.AccountNumber(waddrmgr.DefaultKeyScope, acctName)
 	if err != nil {
 		return nil, err
 	}
