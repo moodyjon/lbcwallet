@@ -921,17 +921,31 @@ func getNewAddress(icmd interface{}, w *wallet.Wallet) (interface{}, error) {
 // Note: bitcoind allows specifying the account as an optional parameter,
 // but ignores the parameter.
 func getRawChangeAddress(icmd interface{}, w *wallet.Wallet) (interface{}, error) {
+
 	cmd := icmd.(*btcjson.GetRawChangeAddressCmd)
 
 	acctName := defaultAccountName
 	if cmd.Account != nil {
 		acctName = *cmd.Account
 	}
-	account, err := w.AccountNumber(waddrmgr.KeyScopeBIP0044, acctName)
+
+	account, err := w.AccountNumber(waddrmgr.DefaultKeyScope, acctName)
 	if err != nil {
 		return nil, err
 	}
-	addr, err := w.NewChangeAddress(account, waddrmgr.KeyScopeBIP0044)
+
+	scope := &waddrmgr.DefaultKeyScope
+
+	// If specified, use the provided key scope.
+	if cmd.AddressType != nil {
+		var err error
+		scope, err = lookupKeyScope(cmd.AddressType)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	addr, err := w.NewChangeAddress(account, *scope)
 	if err != nil {
 		return nil, err
 	}
