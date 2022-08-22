@@ -8,7 +8,7 @@ require (
 	github.com/jessevdk/go-flags v1.5.0
 	github.com/jrick/logrotate v1.0.0
 	github.com/lbryio/lbcd v0.22.102
-	github.com/lbryio/lbcutil v1.0.202-rc3
+	github.com/lbryio/lbcutil v1.0.202
 	github.com/lightningnetwork/lnd/clock v1.1.0
 	github.com/stretchr/testify v1.7.1
 	go.etcd.io/bbolt v1.3.6
@@ -55,5 +55,7 @@ require (
 // by replacing ginko (which is only a test library anyway) with a more recent
 // version.
 replace github.com/onsi/ginkgo => github.com/onsi/ginkgo v1.14.2
+
+replace github.com/lbryio/lbcd => ../lbcd
 
 go 1.19
