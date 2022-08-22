@@ -7,7 +7,9 @@
 
 package rpchelp
 
-import "github.com/lbryio/lbcd/btcjson"
+import (
+	"github.com/lbryio/lbcd/btcjson"
+)
 
 // Common return types.
 var (
@@ -43,7 +45,7 @@ var Methods = []struct {
 	{"help", append(returnsString, returnsString[0])},
 	{"importprivkey", nil},
 	{"keypoolrefill", nil},
-	{"listaccounts", []interface{}{(*map[string]float64)(nil)}},
+	{"listaccounts", []interface{}{(*map[string]map[string]float64)(nil)}},
 	{"listlockunspent", []interface{}{(*[]btcjson.TransactionInput)(nil)}},
 	{"listreceivedbyaccount", []interface{}{(*[]btcjson.ListReceivedByAccountResult)(nil)}},
 	{"listreceivedbyaddress", []interface{}{(*[]btcjson.ListReceivedByAddressResult)(nil)}},
