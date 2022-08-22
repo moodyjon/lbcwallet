@@ -165,6 +165,8 @@ var (
 		Coin:    140,
 	}
 
+	DefaultKeyScope = KeyScopeBIP0044
+
 	// DefaultKeyScopes is the set of default key scopes that will be
 	// created by the root manager upon initial creation.
 	DefaultKeyScopes = []KeyScope{
