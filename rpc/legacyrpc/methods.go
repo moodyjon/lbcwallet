@@ -1678,6 +1678,7 @@ func sendFrom(icmd interface{}, w *wallet.Wallet, chainClient *chain.RPCClient) 
 // or a fee for the miner are sent back to a new address in the wallet.
 // Upon success, the TxID for the created transaction is returned.
 func sendMany(icmd interface{}, w *wallet.Wallet) (interface{}, error) {
+
 	cmd := icmd.(*btcjson.SendManyCmd)
 
 	// Transaction comments are not yet supported.  Error instead of
@@ -1689,7 +1690,7 @@ func sendMany(icmd interface{}, w *wallet.Wallet) (interface{}, error) {
 		}
 	}
 
-	account, err := w.AccountNumber(waddrmgr.KeyScopeBIP0044, cmd.FromAccount)
+	account, err := w.AccountNumber(waddrmgr.DefaultKeyScope, cmd.FromAccount)
 	if err != nil {
 		return nil, err
 	}
@@ -1698,6 +1699,15 @@ func sendMany(icmd interface{}, w *wallet.Wallet) (interface{}, error) {
 	minConf := int32(*cmd.MinConf)
 	if minConf < 0 {
 		return nil, ErrNeedPositiveMinconf
+	}
+
+	// Use specified scope, if provided.
+	scope := &waddrmgr.DefaultKeyScope
+	if cmd.AddressType != nil {
+		scope, err = lookupKeyScope(cmd.AddressType)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// Recreate address/amount pairs, using dcrutil.Amount.
@@ -1710,7 +1720,7 @@ func sendMany(icmd interface{}, w *wallet.Wallet) (interface{}, error) {
 		pairs[k] = amt
 	}
 
-	return sendPairs(w, pairs, waddrmgr.KeyScopeBIP0044, account, minConf, txrules.DefaultRelayFeePerKb)
+	return sendPairs(w, pairs, *scope, account, minConf, txrules.DefaultRelayFeePerKb)
 }
 
 // sendToAddress handles a sendtoaddress RPC request by creating a new
