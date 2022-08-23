@@ -2045,7 +2045,7 @@ func validateAddress(icmd interface{}, w *wallet.Wallet) (interface{}, error) {
 	// information about it available and it is "mine".
 	result.IsMine = true
 	acctName, err := w.AccountName(
-		waddrmgr.KeyScopeBIP0044, ainfo.InternalAccount(),
+		waddrmgr.DefaultKeyScope, ainfo.InternalAccount(),
 	)
 	if err != nil {
 		return nil, &ErrAccountNameNotFound
