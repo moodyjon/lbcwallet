@@ -103,12 +103,6 @@ type config struct {
 	Username               string                  `short:"u" long:"username" description:"Username for legacy RPC and lbcd authentication (if lbcdusername is unset)"`
 	Password               string                  `short:"P" long:"password" default-mask:"-" description:"Password for legacy RPC and lbcd authentication (if lbcdpassword is unset)"`
 
-	// EXPERIMENTAL RPC server options
-	//
-	// These options will change (and require changes to config files, etc.)
-	// when the new gRPC server is enabled.
-	ExperimentalRPCListeners []string `long:"experimentalrpclisten" description:"Listen for RPC connections on this interface/port"`
-
 	// Deprecated options
 	DataDir *cfgutil.ExplicitString `short:"b" long:"datadir" default-mask:"-" description:"DEPRECATED -- use appdata instead"`
 }
@@ -578,12 +572,7 @@ func loadConfig() (*config, []string, error) {
 		}
 	}
 
-	// Only set default RPC listeners when there are no listeners set for
-	// the experimental RPC server.  This is required to prevent the old RPC
-	// server from sharing listen addresses, since it is impossible to
-	// remove defaults from go-flags slice options without assigning
-	// specific behavior to a particular string.
-	if len(cfg.ExperimentalRPCListeners) == 0 && len(cfg.LegacyRPCListeners) == 0 {
+	if len(cfg.LegacyRPCListeners) == 0 {
 		addrs, err := net.LookupHost("localhost")
 		if err != nil {
 			return nil, nil, err
@@ -604,36 +593,9 @@ func loadConfig() (*config, []string, error) {
 			"Invalid network address in legacy RPC listeners: %v\n", err)
 		return nil, nil, err
 	}
-	cfg.ExperimentalRPCListeners, err = cfgutil.NormalizeAddresses(
-		cfg.ExperimentalRPCListeners, activeNet.RPCServerPort)
-	if err != nil {
-		fmt.Fprintf(os.Stderr,
-			"Invalid network address in RPC listeners: %v\n", err)
-		return nil, nil, err
-	}
-
-	// Both RPC servers may not listen on the same interface/port.
-	if len(cfg.LegacyRPCListeners) > 0 && len(cfg.ExperimentalRPCListeners) > 0 {
-		seenAddresses := make(map[string]struct{}, len(cfg.LegacyRPCListeners))
-		for _, addr := range cfg.LegacyRPCListeners {
-			seenAddresses[addr] = struct{}{}
-		}
-		for _, addr := range cfg.ExperimentalRPCListeners {
-			_, seen := seenAddresses[addr]
-			if seen {
-				err := fmt.Errorf("address `%s` may not be "+
-					"used as a listener address for both "+
-					"RPC servers", addr)
-				fmt.Fprintln(os.Stderr, err)
-				return nil, nil, err
-			}
-		}
-	}
 
 	if cfg.DisableServerTLS {
-		allListeners := append(cfg.LegacyRPCListeners,
-			cfg.ExperimentalRPCListeners...)
-		for _, addr := range allListeners {
+		for _, addr := range cfg.LegacyRPCListeners {
 			_, _, err := net.SplitHostPort(addr)
 			if err != nil {
 				str := "%s: RPC listen interface '%s' is " +
