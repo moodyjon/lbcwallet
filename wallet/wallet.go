@@ -689,7 +689,7 @@ func (w *Wallet) recovery(chainClient chain.Interface,
 	// that a wallet rescan will be performed from the wallet's tip, which
 	// will be of bestHeight after completing the recovery process.
 
-	pass, err := prompt.ProvidePassphrase()
+	pass, err := prompt.Passphrase(false)
 	if err != nil {
 		return err
 	}
@@ -3664,8 +3664,8 @@ func create(db walletdb.DB, privPass []byte, rootKey *hdkeychain.ExtendedKey,
 }
 
 // Open loads an already-created wallet from the passed database and namespaces.
-func Open(db walletdb.DB, cbs *waddrmgr.OpenCallbacks,
-	params *chaincfg.Params, recoveryWindow uint32) (*Wallet, error) {
+func Open(db walletdb.DB, params *chaincfg.Params, recoveryWindow uint32) (
+	*Wallet, error) {
 
 	var (
 		addrMgr *waddrmgr.Manager

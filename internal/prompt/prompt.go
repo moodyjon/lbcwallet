@@ -21,14 +21,7 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 )
 
-// ProvideSeed is used to prompt for the wallet seed which maybe required during
-// upgrades.
-func ProvideSeed() func() ([]byte, error) {
-	return func() ([]byte, error) {
-		return provideSeed(bufio.NewReader(os.Stdin))
-	}
-}
-func provideSeed(reader *bufio.Reader) ([]byte, error) {
+func promptSeed(reader *bufio.Reader) ([]byte, error) {
 	for {
 		fmt.Print("Enter existing wallet seed: ")
 		seedStr, err := reader.ReadString('\n')
@@ -49,26 +42,6 @@ func provideSeed(reader *bufio.Reader) ([]byte, error) {
 		}
 
 		return seed, nil
-	}
-}
-
-// ProvidePassphrase is used to prompt for the passphrase which maybe required
-// during upgrades.
-func ProvidePassphrase() ([]byte, error) {
-	prompt := "Enter the passphrase of your wallet: "
-	for {
-		fmt.Print(prompt)
-		pass, err := terminal.ReadPassword(int(os.Stdin.Fd()))
-		if err != nil {
-			return nil, err
-		}
-		fmt.Print("\n")
-		pass = bytes.TrimSpace(pass)
-		if len(pass) == 0 {
-			continue
-		}
-
-		return pass, nil
 	}
 }
 
@@ -150,7 +123,12 @@ func promptUnixTimestamp(reader *bufio.Reader, prefix string,
 // promptPassphrase prompts the user for a passphrase with the given prefix.
 // The function will ask the user to confirm the passphrase and will repeat
 // the prompts until they enter a matching response.
-func promptPassphrase(_ *bufio.Reader, prefix string, confirm bool) ([]byte, error) {
+func promptPassphrase(prefix string, confirm bool) ([]byte, error) {
+	pass := os.Getenv("LBCWALLET_PASSPHRASE")
+	if len(pass) > 0 {
+		return []byte(pass), nil
+	}
+
 	// Prompt the user until they enter a passphrase.
 	prompt := fmt.Sprintf("%s: ", prefix)
 	for {
@@ -193,9 +171,9 @@ func birthday(reader *bufio.Reader) (time.Time, error) {
 
 // Passphrase prompts the user for a passphrase.
 // All prompts are repeated until the user enters a valid response.
-func Passphrase(reader *bufio.Reader) ([]byte, error) {
-	return promptPassphrase(reader, "Enter the passphrase "+
-		"for your new wallet", true)
+func Passphrase(confirm bool) ([]byte, error) {
+	return promptPassphrase("Enter the passphrase "+
+		"for your new wallet", confirm)
 }
 
 // Seed prompts the user whether they want to use an existing wallet generation
@@ -239,7 +217,7 @@ func Seed(reader *bufio.Reader) ([]byte, time.Time, error) {
 		return seed, bday, nil
 	}
 
-	seed, err := provideSeed(reader)
+	seed, err := promptSeed(reader)
 	if err != nil {
 		return nil, bday, err
 	}

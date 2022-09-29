@@ -47,7 +47,7 @@ func createWallet(cfg *config) error {
 
 	// Start by prompting for the passphrase.
 	reader := bufio.NewReader(os.Stdin)
-	privPass, err := prompt.Passphrase(reader)
+	privPass, err := prompt.Passphrase(true)
 	if err != nil {
 		return err
 	}

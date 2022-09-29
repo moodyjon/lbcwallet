@@ -14,8 +14,6 @@ import (
 
 	"github.com/lbryio/lbcd/chaincfg"
 	"github.com/lbryio/lbcutil/hdkeychain"
-	"github.com/lbryio/lbcwallet/internal/prompt"
-	"github.com/lbryio/lbcwallet/waddrmgr"
 	"github.com/lbryio/lbcwallet/walletdb"
 )
 
@@ -224,7 +222,7 @@ func (l *Loader) createNewWallet(passphrase []byte,
 	}
 
 	// Open the newly-created wallet.
-	w, err := Open(l.db, nil, l.chainParams, l.recoveryWindow)
+	w, err := Open(l.db, l.chainParams, l.recoveryWindow)
 	if err != nil {
 		return nil, err
 	}
@@ -236,14 +234,10 @@ func (l *Loader) createNewWallet(passphrase []byte,
 
 var errNoConsole = errors.New("db upgrade requires console access for additional input")
 
-func noConsole() ([]byte, error) {
-	return nil, errNoConsole
-}
-
 // OpenExistingWallet opens the wallet from the loader's wallet database path.
 // If the loader is being called by a context where standard input prompts may
 // be used during wallet upgrades, setting canConsolePrompt will enables these prompts.
-func (l *Loader) OpenExistingWallet(canConsolePrompt bool) (*Wallet, error) {
+func (l *Loader) OpenExistingWallet() (*Wallet, error) {
 	defer l.mu.Unlock()
 	l.mu.Lock()
 
@@ -269,19 +263,7 @@ func (l *Loader) OpenExistingWallet(canConsolePrompt bool) (*Wallet, error) {
 		}
 	}
 
-	var cbs *waddrmgr.OpenCallbacks
-	if canConsolePrompt {
-		cbs = &waddrmgr.OpenCallbacks{
-			ObtainSeed:       prompt.ProvideSeed(),
-			ObtainPassphrase: prompt.ProvidePassphrase,
-		}
-	} else {
-		cbs = &waddrmgr.OpenCallbacks{
-			ObtainSeed:       noConsole,
-			ObtainPassphrase: noConsole,
-		}
-	}
-	w, err := Open(l.db, cbs, l.chainParams, l.recoveryWindow)
+	w, err := Open(l.db, l.chainParams, l.recoveryWindow)
 	if err != nil {
 		// If opening the wallet fails (e.g. because of wrong
 		// passphrase), we must close the backing database to

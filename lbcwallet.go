@@ -87,7 +87,7 @@ func walletMain() error {
 		startWalletRPCServices(w, legacyRPCServer)
 	})
 
-	_, err = loader.OpenExistingWallet(true)
+	_, err = loader.OpenExistingWallet()
 	if err != nil {
 		log.Error(err)
 		return err
