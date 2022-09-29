@@ -77,14 +77,6 @@ type config struct {
 	ProxyUser        string                  `long:"proxyuser" description:"Username for proxy server"`
 	ProxyPass        string                  `long:"proxypass" default-mask:"-" description:"Password for proxy server"`
 
-	// SPV client options
-	UseSPV       bool          `long:"usespv" description:"Enables the experimental use of SPV rather than RPC for chain synchronization"`
-	AddPeers     []string      `short:"a" long:"addpeer" description:"Add a peer to connect with at startup"`
-	ConnectPeers []string      `long:"connect" description:"Connect only to the specified peers at startup"`
-	MaxPeers     int           `long:"maxpeers" description:"Max number of inbound and outbound peers"`
-	BanDuration  time.Duration `long:"banduration" description:"How long to ban misbehaving peers.  Valid time units are {s, m, h}.  Minimum 1 second"`
-	BanThreshold uint32        `long:"banthreshold" description:"Maximum allowed ban score before disconnecting and banning misbehaving peers."`
-
 	// RPC server options
 	//
 	// The legacy server is still enabled by default (and eventually will be
@@ -265,9 +257,6 @@ func loadConfig() (*config, []string, error) {
 		LegacyRPCMaxClients:    defaultRPCMaxClients,
 		LegacyRPCMaxWebsockets: defaultRPCMaxWebsockets,
 		DataDir:                cfgutil.NewExplicitString(defaultAppDataDir),
-		UseSPV:                 false,
-		AddPeers:               []string{},
-		ConnectPeers:           []string{},
 		DBTimeout:              wallet.DefaultDBTimeout,
 	}
 

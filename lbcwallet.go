@@ -135,10 +135,7 @@ func walletMain() error {
 // associated with the server for RPC passthrough and to enable additional
 // methods.
 func rpcClientConnectLoop(legacyRPCServer *legacyrpc.Server, loader *wallet.Loader) {
-	var certs []byte
-	if !cfg.UseSPV {
-		certs = readCAFile()
-	}
+	certs := readCAFile()
 
 	for {
 		var (
