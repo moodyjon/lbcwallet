@@ -81,24 +81,16 @@ func walletMain() error {
 		return err
 	}
 
-	// Create and start chain RPC client so it's ready to connect to
-	// the wallet when loaded later.
-	if !cfg.NoInitialLoad {
-		go rpcClientConnectLoop(legacyRPCServer, loader)
-	}
+	go rpcClientConnectLoop(legacyRPCServer, loader)
 
 	loader.RunAfterLoad(func(w *wallet.Wallet) {
 		startWalletRPCServices(w, legacyRPCServer)
 	})
 
-	if !cfg.NoInitialLoad {
-		// Load the wallet database.  It must have been created already
-		// or this will return an appropriate error.
-		_, err = loader.OpenExistingWallet(true)
-		if err != nil {
-			log.Error(err)
-			return err
-		}
+	_, err = loader.OpenExistingWallet(true)
+	if err != nil {
+		log.Error(err)
+		return err
 	}
 
 	// Add interrupt handlers to shutdown the various process components
