@@ -529,11 +529,10 @@ func (w *Wallet) syncWithChain(birthdayStamp *waddrmgr.BlockStamp) error {
 }
 
 // isDevEnv determines whether the wallet is currently under a local developer
-// environment, e.g. simnet or regtest.
+// environment, e.g. regtest.
 func (w *Wallet) isDevEnv() bool {
 	switch uint32(w.ChainParams().Net) {
 	case uint32(chaincfg.RegressionNetParams.Net):
-	case uint32(chaincfg.SimNetParams.Net):
 	default:
 		return false
 	}

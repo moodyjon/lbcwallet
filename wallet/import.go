@@ -9,7 +9,6 @@ import (
 	"github.com/lbryio/lbcd/wire"
 	btcutil "github.com/lbryio/lbcutil"
 	"github.com/lbryio/lbcutil/hdkeychain"
-	"github.com/lbryio/lbcwallet/netparams"
 	"github.com/lbryio/lbcwallet/waddrmgr"
 	"github.com/lbryio/lbcwallet/walletdb"
 )
@@ -38,8 +37,7 @@ func keyScopeFromPubKey(pubKey *hdkeychain.ExtendedKey,
 	// force the standard BIP-0049 derivation scheme (nested witness pubkeys
 	// everywhere), while a witness address type will force the standard
 	// BIP-0084 derivation scheme.
-	case waddrmgr.HDVersionMainNetBIP0044, waddrmgr.HDVersionTestNetBIP0044,
-		waddrmgr.HDVersionSimNetBIP0044:
+	case waddrmgr.HDVersionMainNetBIP0044, waddrmgr.HDVersionTestNetBIP0044:
 
 		if addrType == nil {
 			return waddrmgr.KeyScope{}, nil, errors.New("address " +
@@ -109,20 +107,10 @@ func (w *Wallet) isPubKeyForNet(pubKey *hdkeychain.ExtendedKey) bool {
 			version == waddrmgr.HDVersionMainNetBIP0049 ||
 			version == waddrmgr.HDVersionMainNetBIP0084
 
-	case wire.TestNet, wire.TestNet3, netparams.SigNetWire(w.chainParams):
+	case wire.TestNet, wire.TestNet3:
 		return version == waddrmgr.HDVersionTestNetBIP0044 ||
 			version == waddrmgr.HDVersionTestNetBIP0049 ||
 			version == waddrmgr.HDVersionTestNetBIP0084
-
-	// For simnet, we'll also allow the mainnet versions since simnet
-	// doesn't have defined versions for some of our key scopes, and the
-	// mainnet versions are usually used as the default regardless of the
-	// network/key scope.
-	case wire.SimNet:
-		return version == waddrmgr.HDVersionSimNetBIP0044 ||
-			version == waddrmgr.HDVersionMainNetBIP0049 ||
-			version == waddrmgr.HDVersionMainNetBIP0084
-
 	default:
 		return false
 	}

@@ -5,7 +5,6 @@
 package main
 
 import (
-	"encoding/hex"
 	"fmt"
 	"net"
 	"os"
@@ -17,7 +16,6 @@ import (
 	"time"
 
 	flags "github.com/jessevdk/go-flags"
-	"github.com/lbryio/lbcd/chaincfg"
 	"github.com/lbryio/lbcd/version"
 	btcutil "github.com/lbryio/lbcutil"
 	"github.com/lbryio/lbcwallet/internal/cfgutil"
@@ -46,27 +44,23 @@ var (
 
 type config struct {
 	// General application behavior
-	ConfigFile      *cfgutil.ExplicitString `short:"C" long:"configfile" description:"Path to configuration file"`
-	ShowVersion     bool                    `short:"V" long:"version" description:"Display version information and exit"`
-	Create          bool                    `long:"create" description:"Create the wallet if it does not exist"`
-	CreateTemp      bool                    `long:"createtemp" description:"Create a temporary simulation wallet (pass=password) in the data directory indicated; must call with --datadir"`
-	AppDataDir      *cfgutil.ExplicitString `short:"A" long:"appdata" description:"Application data directory for wallet config, databases and logs"`
-	TestNet3        bool                    `long:"testnet" description:"Use the test Bitcoin network (version 3) (default client port: 19244, server port: 19245)"`
-	Regtest         bool                    `long:"regtest" description:"Use the regression test network (default client port: 29244, server port: 29245)"`
-	SimNet          bool                    `long:"simnet" description:"Use the simulation test network (default client port: 39244, server port: 39245)"`
-	SigNet          bool                    `long:"signet" description:"Use the signet test network (default client port: 49244, server port: 49245)"`
-	SigNetChallenge string                  `long:"signetchallenge" description:"Connect to a custom signet network defined by this challenge instead of using the global default signet test network -- Can be specified multiple times"`
-	SigNetSeedNode  []string                `long:"signetseednode" description:"Specify a seed node for the signet network instead of using the global default signet network seed nodes"`
-	DebugLevel      string                  `short:"d" long:"debuglevel" description:"Logging level {trace, debug, info, warn, error, critical}"`
-	LogDir          string                  `long:"logdir" description:"Directory to log output."`
-	Profile         string                  `long:"profile" description:"Enable HTTP profiling on given port -- NOTE port must be between 1024 and 65536"`
-	DBTimeout       time.Duration           `long:"dbtimeout" description:"The timeout value to use when opening the wallet database."`
+	ConfigFile  *cfgutil.ExplicitString `short:"C" long:"configfile" description:"Path to configuration file"`
+	ShowVersion bool                    `short:"V" long:"version" description:"Display version information and exit"`
+	Create      bool                    `long:"create" description:"Create the wallet if it does not exist"`
+	CreateTemp  bool                    `long:"createtemp" description:"Create a temporary simulation wallet (pass=password) in the data directory indicated; must call with --datadir"`
+	AppDataDir  *cfgutil.ExplicitString `short:"A" long:"appdata" description:"Application data directory for wallet config, databases and logs"`
+	TestNet3    bool                    `long:"testnet" description:"Use the test Bitcoin network (version 3) (default client port: 19244, server port: 19245)"`
+	Regtest     bool                    `long:"regtest" description:"Use the regression test network (default client port: 29244, server port: 29245)"`
+	DebugLevel  string                  `short:"d" long:"debuglevel" description:"Logging level {trace, debug, info, warn, error, critical}"`
+	LogDir      string                  `long:"logdir" description:"Directory to log output."`
+	Profile     string                  `long:"profile" description:"Enable HTTP profiling on given port -- NOTE port must be between 1024 and 65536"`
+	DBTimeout   time.Duration           `long:"dbtimeout" description:"The timeout value to use when opening the wallet database."`
 
 	// Wallet options
 	WalletPass string `long:"walletpass" default-mask:"-" description:"The public wallet password -- Only required if the wallet was created with one"`
 
 	// RPC client options
-	RPCConnect       string                  `short:"c" long:"rpcconnect" description:"Hostname/IP and port of lbcd RPC server to connect to (default localhost:9245, testnet: localhost:19245, regtest: localhost:29245 simnet: localhost:39245)"`
+	RPCConnect       string                  `short:"c" long:"rpcconnect" description:"Hostname/IP and port of lbcd RPC server to connect to (default localhost:9245, testnet: localhost:19245, regtest: localhost:29245)"`
 	CAFile           *cfgutil.ExplicitString `long:"cafile" description:"File containing root certificates to authenticate a TLS connections with lbcd"`
 	DisableClientTLS bool                    `long:"noclienttls" description:"Disable TLS for the RPC client"`
 	SkipVerify       bool                    `long:"skipverify" description:"Skip verifying TLS for the RPC client"`
@@ -75,18 +69,11 @@ type config struct {
 	ProxyPass        string                  `long:"proxypass" default-mask:"-" description:"Password for proxy server"`
 
 	// RPC server options
-	//
-	// The legacy server is still enabled by default (and eventually will be
-	// replaced with the experimental server) so prepare for that change by
-	// renaming the struct fields (but not the configuration options).
-	//
-	// Usernames can also be used for the consensus RPC client, so they
-	// aren't considered legacy.
 	RPCCert                *cfgutil.ExplicitString `long:"rpccert" description:"File containing the certificate file"`
 	RPCKey                 *cfgutil.ExplicitString `long:"rpckey" description:"File containing the certificate key"`
 	OneTimeTLSKey          bool                    `long:"onetimetlskey" description:"Generate a new TLS certpair at startup, but only write the certificate to disk"`
 	DisableServerTLS       bool                    `long:"noservertls" description:"Disable TLS for the RPC server"`
-	LegacyRPCListeners     []string                `long:"rpclisten" description:"Listen for legacy RPC connections on this interface/port (default port: 9244, testnet: 19244, regtest: 29244, simnet: 29244)"`
+	LegacyRPCListeners     []string                `long:"rpclisten" description:"Listen for legacy RPC connections on this interface/port (default port: 9244, testnet: 19244, regtest: 29244)"`
 	LegacyRPCMaxClients    int64                   `long:"rpcmaxclients" description:"Max number of legacy RPC clients for standard connections"`
 	LegacyRPCMaxWebsockets int64                   `long:"rpcmaxwebsockets" description:"Max number of RPC websocket connections"`
 	RPCUser                string                  `short:"u" long:"rpcuser" description:"Username for RPC and lbcd authentication"`
@@ -347,52 +334,8 @@ func loadConfig() (*config, []string, error) {
 		activeNet = &netparams.RegTestParams
 		numNets++
 	}
-	if cfg.SimNet {
-		activeNet = &netparams.SimNetParams
-		numNets++
-	}
-	if cfg.SigNet {
-		activeNet = &netparams.SigNetParams
-		numNets++
-
-		// Let the user overwrite the default signet parameters. The
-		// challenge defines the actual signet network to join and the
-		// seed nodes are needed for network discovery.
-		sigNetChallenge := chaincfg.DefaultSignetChallenge
-		sigNetSeeds := chaincfg.DefaultSignetDNSSeeds
-		if cfg.SigNetChallenge != "" {
-			challenge, err := hex.DecodeString(cfg.SigNetChallenge)
-			if err != nil {
-				str := "%s: Invalid signet challenge, hex " +
-					"decode failed: %v"
-				err := fmt.Errorf(str, funcName, err)
-				fmt.Fprintln(os.Stderr, err)
-				fmt.Fprintln(os.Stderr, usageMessage)
-				return nil, nil, err
-			}
-			sigNetChallenge = challenge
-		}
-
-		if len(cfg.SigNetSeedNode) > 0 {
-			sigNetSeeds = make(
-				[]chaincfg.DNSSeed, len(cfg.SigNetSeedNode),
-			)
-			for idx, seed := range cfg.SigNetSeedNode {
-				sigNetSeeds[idx] = chaincfg.DNSSeed{
-					Host:         seed,
-					HasFiltering: false,
-				}
-			}
-		}
-
-		chainParams := chaincfg.CustomSignetParams(
-			sigNetChallenge, sigNetSeeds,
-		)
-		activeNet.Params = &chainParams
-	}
 	if numNets > 1 {
-		str := "%s: The testnet, signet and simnet params can't be " +
-			"used together -- choose one"
+		str := "%s: more than one networks has been specified"
 		err := fmt.Errorf(str, "loadConfig")
 		fmt.Fprintln(os.Stderr, err)
 		parser.WriteHelp(os.Stderr)
@@ -433,9 +376,9 @@ func loadConfig() (*config, []string, error) {
 		}
 
 		// Exit if you try to use a simulation wallet on anything other than
-		// simnet, regtest or testnet3.
-		if !(cfg.Regtest || cfg.SimNet || cfg.TestNet3) {
-			errMsg += "for network other than simnet, regtest, or testnet3"
+		// regtest or testnet3.
+		if !(cfg.Regtest || cfg.TestNet3) {
+			errMsg += "for network other than regtest, or testnet3"
 			fmt.Fprintln(os.Stderr, errMsg)
 			os.Exit(0)
 		}
