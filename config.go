@@ -70,8 +70,6 @@ type config struct {
 	CAFile           *cfgutil.ExplicitString `long:"cafile" description:"File containing root certificates to authenticate a TLS connections with lbcd"`
 	DisableClientTLS bool                    `long:"noclienttls" description:"Disable TLS for the RPC client"`
 	SkipVerify       bool                    `long:"skipverify" description:"Skip verifying TLS for the RPC client"`
-	LbcdUsername     string                  `long:"lbcdusername" description:"Username for lbcd authentication"`
-	LbcdPassword     string                  `long:"lbcdpassword" default-mask:"-" description:"Password for lbcd authentication"`
 	Proxy            string                  `long:"proxy" description:"Connect via SOCKS5 proxy (eg. 127.0.0.1:9050)"`
 	ProxyUser        string                  `long:"proxyuser" description:"Username for proxy server"`
 	ProxyPass        string                  `long:"proxypass" default-mask:"-" description:"Password for proxy server"`
@@ -90,9 +88,9 @@ type config struct {
 	DisableServerTLS       bool                    `long:"noservertls" description:"Disable TLS for the RPC server"`
 	LegacyRPCListeners     []string                `long:"rpclisten" description:"Listen for legacy RPC connections on this interface/port (default port: 9244, testnet: 19244, regtest: 29244, simnet: 29244)"`
 	LegacyRPCMaxClients    int64                   `long:"rpcmaxclients" description:"Max number of legacy RPC clients for standard connections"`
-	LegacyRPCMaxWebsockets int64                   `long:"rpcmaxwebsockets" description:"Max number of legacy RPC websocket connections"`
-	Username               string                  `short:"u" long:"username" description:"Username for legacy RPC and lbcd authentication (if lbcdusername is unset)"`
-	Password               string                  `short:"P" long:"password" default-mask:"-" description:"Password for legacy RPC and lbcd authentication (if lbcdpassword is unset)"`
+	LegacyRPCMaxWebsockets int64                   `long:"rpcmaxwebsockets" description:"Max number of RPC websocket connections"`
+	RPCUser                string                  `short:"u" long:"rpcuser" description:"Username for RPC and lbcd authentication"`
+	RPCPass                string                  `short:"P" long:"rpcpass" default-mask:"-" description:"Password for RPC and lbcd authentication"`
 
 	// Deprecated options
 	DataDir *cfgutil.ExplicitString `short:"b" long:"datadir" default-mask:"-" description:"DEPRECATED -- use appdata instead"`
@@ -600,17 +598,6 @@ func loadConfig() (*config, []string, error) {
 	cfg.CAFile.Value = cleanAndExpandPath(cfg.CAFile.Value)
 	cfg.RPCCert.Value = cleanAndExpandPath(cfg.RPCCert.Value)
 	cfg.RPCKey.Value = cleanAndExpandPath(cfg.RPCKey.Value)
-
-	// If the lbcd username or password are unset, use the same auth as for
-	// the client.  The two settings were previously shared for lbcd and
-	// client auth, so this avoids breaking backwards compatibility while
-	// allowing users to use different auth settings for lbcd and wallet.
-	if cfg.LbcdUsername == "" {
-		cfg.LbcdUsername = cfg.Username
-	}
-	if cfg.LbcdPassword == "" {
-		cfg.LbcdPassword = cfg.Password
-	}
 
 	// Warn about missing config file after the final command line parse
 	// succeeds.  This prevents the warning on help messages and invalid

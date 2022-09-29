@@ -22,25 +22,12 @@ does mean they could track all transactions involving your addresses
 and therefore know your exact balance.  In a future release, public data
 encryption will extend to transactions as well.
 
-Wallet clients can use one of two RPC servers:
-
-  1. A legacy JSON-RPC server mostly compatible with Bitcoin Core
-
-     The JSON-RPC server exists to ease the migration of wallet applications
-     from Core, but complete compatibility is not guaranteed.  Some portions of
-     the API (and especially accounts) have to work differently due to other
-     design decisions (mostly due to BIP0044).  However, if you find a
-     compatibility issue and feel that it could be reasonably supported, please
-     report an issue.  This server is enabled by default.
-
-  2. An experimental gRPC server
-
-     The gRPC server uses a new API built for lbcwallet, but the API is not
-     stabilized and the server is feature gated behind a config option
-     (`--experimentalrpclisten`).  If you don't mind applications breaking due
-     to API changes, don't want to deal with issues of the legacy API, or need
-     notifications for changes to the wallet, this is the RPC server to use.
-     The gRPC server is documented [here](./rpc/documentation/README.md).
+The JSON-RPC server exists to ease the migration of wallet applications
+from Core, but complete compatibility is not guaranteed.  Some portions of
+the API (and especially accounts) have to work differently due to other
+design decisions (mostly due to BIP0044).  However, if you find a
+compatibility issue and feel that it could be reasonably supported, please
+report an issue.  This server is enabled by default.
 
 ## Security
 
@@ -93,25 +80,23 @@ Start a local instance of `lbcd` and have the `lbcwallet` connecting to it.
 
 ``` sh
 # Start a lbcd with its RPC credentials
-./lbcd --txindex --rpcuser=lbcduser --rpcpass=lbcdpass
+./lbcd --txindex --rpcuser=rpcuser --rpcpass=rpcpass
 
 # Start a lbcwallet with its RPC credentials along with the lbcd's RPC credentials
 # The default lbcd instance to conect to is already localhost:9245 so we don't need to specify it explicitly here.
-./lbcwallet --username=rpcuser --password=rpcpass --lbcdusername=lbcduser --lbcdpassword=lbcdpass # --rpcconnect=localhost:9245
+./lbcwallet --rpcuser=rpcuser --rpcpass=rpcpass # --rpcconnect=localhost:9245
 
 #
-#             rpcuser/rpcpass                lbcduser/lbcdpass
+#             rpcuser/rpcpass                rpcuser/rpcpass
 # lbcctl  <-------------------> lbcwallet <--------------------> lbcd
 #             RPC port 9244                   RPC port 9245
 #
 ```
 
-If the `lbcd` and `lbcwallet` use the same RPC credentials, we can skip the `--lbcdusername` and `--lbcdpassword`
-
 ``` sh
 ./lbcd --txindex --rpcuser=rpcuser --rpcpass=rpcpass
 
-./lbcwallet --username=rpcuser --password=rpcpass
+./lbcwallet --rpcuser=rpcuser --rpcpass=rpcpass
 
 #
 #             rpcuser/rpcpass                rpcuser/rpcpass
