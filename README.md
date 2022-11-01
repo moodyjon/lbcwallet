@@ -1,53 +1,18 @@
 # lbcwallet
 
-lbcwallet is a daemon, which provides lbry wallet functionality for a
-single user.
-
-Public and private keys are derived using the hierarchical
-deterministic format described by
-[BIP0032](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki).
-Unencrypted private keys are not supported and are never written to disk.
-
-lbcwallet uses the `m/44'/<coin type>'/<account>'/<branch>/<address index>`
-HD path for all derived addresses, as described by
-[BIP0044](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki).
-
-Due to the sensitive nature of public data in a BIP0032 wallet,
-lbcwallet provides the option of encrypting not just private keys, but
-public data as well.  This is intended to thwart privacy risks where a
-wallet file is compromised without exposing all current and future
-addresses (public keys) managed by the wallet. While access to this
-information would not allow an attacker to spend or steal coins, it
-does mean they could track all transactions involving your addresses
-and therefore know your exact balance.  In a future release, public data
-encryption will extend to transactions as well.
-
-The JSON-RPC server exists to ease the migration of wallet applications
-from Core, but complete compatibility is not guaranteed.  Some portions of
-the API (and especially accounts) have to work differently due to other
-design decisions (mostly due to BIP0044).  However, if you find a
-compatibility issue and feel that it could be reasonably supported, please
-report an issue.  This server is enabled by default.
+lbcwallet implements HD Wallet functionality which conforms to
+[BIP0032](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki),
+[BIP0043](https://github.com/bitcoin/bips/blob/master/bip-0043.mediawiki),
+and [BIP0044](https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki).
 
 ## Security
 
 We take security seriously. Please contact [security](mailto:security@lbry.com) regarding any security issues.
 Our PGP key is [here](https://lbry.com/faq/pgp-key) if you need it.
 
-## Requirements
+## Build from Source Code
 
-- [Go](http://golang.org) 1.16 or newer.
-
-- `lbcwallet` is not an SPV client and requires connecting to a local or remote
-  `lbcd` for asynchronous blockchain queries and notifications over websockets.
-
-  Full installation instructions can be found [here](https://github.com/lbryio/lbcd).
-
-## To Build lbcwallet, lbcd, and lbcctl from Source
-
-Install Go according to its [installation instructions](http://golang.org/doc/install).
-
-Build `lbcwallet`
+Requires [Go](http://golang.org) 1.19 or newer.  Install Go according to its [installation instructions](http://golang.org/doc/install).
 
 ``` sh
 git clone https://github.com/lbryio/lbcwallet
@@ -55,112 +20,62 @@ cd lbcwallet
 go build .
 ```
 
-To make the quick start guide self-contained, here's how we can build the `lbcd` and `lbcctl`
+## **lbcd** & **lbcwallet**
 
-``` sh
-git clone https://github.com/lbryio/lbcd
-cd lbcd
+`lbcwallet` is not an SPV client and requires connecting to a `lbcd` node for asynchronous blockchain queries and notifications over websockets.
 
-# build lbcd
-go build .
+lbcwallet can serve wallet related RPCs and proxy lbcd RPCs to the assocated lbcd. It's sufficient for a user to connect just the **lbcwallet** instead of both.
 
-# build lbcctl
-go build ./cmd/lbcctl
+``` mermaid
+sequenceDiagram
+    actor C as lbcctl
+    participant W as lbcwallet (port: 9244)
+    participant D as lbcd (port: 9245)
+
+    rect rgb(200,200,200)
+    Note over C,W: lbcctl --wallet balance
+    C ->>+ W: getbalance
+    W -->>- C: response
+    end
+
+    rect rgb(200,200,200)
+    Note over C,D: lbcctl --wallet getblockcount (lbcd RPC service proxied by lbcwallet)
+    C ->>+ W: getblockcount
+    W ->>+ D: getblockcount
+    D -->>- W: response
+    W -->>- C: response
+    end
 ```
 
 ## Getting Started
 
-The first time running the `lbcwallet` we need to create a new wallet.
+Create a new wallet with a randomly generated seed or an existing one.
 
 ``` sh
-./lbcwallet --create
+lbcwallet --create
+
+Do you have an existing wallet seed you want to use? (n/no/y/yes) [no]: no
+Your wallet generation seed is: 3d005498ad5e9b7439b857249e328ec34e21845b7d1a7d2a5641d4050c02d0da
 ```
 
-Start a local instance of `lbcd` and have the `lbcwallet` connecting to it.
+The created wallet protects the seed with a default passphrase (`"passphrase"`), which can be override with `-p` option:
 
 ``` sh
-# Start a lbcd with its RPC credentials
-./lbcd --txindex --rpcuser=rpcuser --rpcpass=rpcpass
-
-# Start a lbcwallet with its RPC credentials along with the lbcd's RPC credentials
-# The default lbcd instance to conect to is already localhost:9245 so we don't need to specify it explicitly here.
-./lbcwallet --rpcuser=rpcuser --rpcpass=rpcpass # --rpcconnect=localhost:9245
-
-#
-#             rpcuser/rpcpass                rpcuser/rpcpass
-# lbcctl  <-------------------> lbcwallet <--------------------> lbcd
-#             RPC port 9244                   RPC port 9245
-#
+lbcwallet --create -p my-passphrase
 ```
 
+Start wallet server, and connect it to a lbcd instance.
+
 ``` sh
-./lbcd --txindex --rpcuser=rpcuser --rpcpass=rpcpass
-
-./lbcwallet --rpcuser=rpcuser --rpcpass=rpcpass
-
-#
-#             rpcuser/rpcpass                rpcuser/rpcpass
-# lbcctl  <-------------------> lbcwallet <--------------------> lbcd
-#             RPC port 9244                   RPC port 9245
-#
+lbcwallet --rpcuser=rpcuser --rpcpass=rpcpass # --rpcconnect=localhost:9245
 ```
 
-Note:
+At startup, the wallet will try to unlock itself with the default passphrase (`passphrase`) or an user provided one (using `-p` option).
 
-- `lbcd` and `lbcwallet` implements two disjoint sets of RPCs.
-- `lbcd` serves RPC on port 9245 while `lbcwallet` on port 9244.
-- `lbcwallet` can proxy non-wallet RPCs to its associated `lbcd`.
-
-Examples of using `lbcctl` to interact with the setup via RPCs:
-
-1. Calling non-wallet RPC directly on lbcd:
-
-   ``` sh
-   ./lbcctl --rpcuser=rpcuser --rpcpass=rpcpass getblockcount
-
-   #
-   # lbcctl  <-- getblockcount() --> lbcd
-   #             RPC port 9245      (handled)
-   #
-   ```
-
-2. Calling wallet RPC on lbcwallet (using `--wallet`)
-
-   ``` sh
-   ./lbcctl --rpcuser=rpcuser --rpcpass=rpcpass --wallet getbalance
-
-   #
-   # lbcctl  <-- getbalance() --> lbcwallet
-   #             RPC port 9244    (handled)
-   #
-   ```
-
-3. Calling non-wallet RPC on lbcwallet, which proxies it to lbcd:
-
-   ``` sh
-   ./lbcctl --rpcuser=rpcuser --rpcpass=rpcpass --wallet getblockcount
-
-   #
-   # lbcctl  <-- getblockcount() --> lbcwallet <-- getblockcount() --> lbcd
-   #             RPC port 9244       (proxied)     RPC port 9245
-   #
-   ```
-
-## Default Network and RPC Ports
-
-| Instance      | mainnet | testet | regtest |
-| ------------- | ------- | ------ | ------- |
-| lbcd Network  | 9246    | 19246  | 29246   |
-| lbcd RPC      | 9245    | 19245  | 29245   |
-| lbcwallet RPC | 9244    | 19244  | 29244   |
-
-Examples
+If the passphrase does not match, the wallet remains locked. User can lock/unlock the wallet using `walletlock` and `walletpassphrase` RPCs.
 
 ``` sh
-./lbcctl                    getblockcount # port  9245
-./lbcctl --wallet           getblockcount # port  9244
-./lbcctl --testnet          getblockcount # port 19245
-./lbcctl --wallet --regtest getblockcount # port 29244
+lbcwallet --rpcuser=rpcuser --rpcpass=rpcpass -p my_passphrase
 ```
 
 ## Contributing
